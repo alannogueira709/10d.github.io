@@ -1,14 +1,23 @@
-
-</html>
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/p5.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/addons/p5.sound.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <meta charset="utf-8" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/107/three.min.js"></script>
+    <!-- Seus outros elementos de cabeçalho -->
   </head>
   <body>
+    <header>
+        <div class="header">
+            <h1>10 Dimensões
+            </h1>
+        </div>
+    </header>
+    <div class="h1">
+        <h3>Giroscópio</h3>
+    <div class="cube-content">
+      <div id="3Dcube"></div>
+    </div>
+    </div>
+
     <div class="gyro">
       <h3>Valores do giroscópio.</h3>
       <p><span class="leitura">X: <span id="gyroX">0</span></span></p>
@@ -17,6 +26,46 @@
     </div>
 
     <input type="button" onclick="onClick()" value="click to activate">
+<div>
+  <h3>Coreografia</h3>
+  <label  for="coreografia">Coreografia:
+      <input list="coreografia" id="coreografia">
+  </label>
+  <datalist id="coreografia">
+      <option value="Coreografia 1"></option>
+      <option value="Coreografia 2"></option>
+      <option value="Coreografia 3"></option>
+      <option value="Coreografia 4"></option>
+      <option value="Coreografia 5"></option>
+  </datalist>
+</div>
+<div class= "leds" id="leds">
+  <h3>LEDs</h3>
+  <input type="checkbox" name="" id="led1">
+  <input type="checkbox" name="" id="led2">
+  <input type="checkbox" name="" id="led3">
+  <input type="checkbox" name="" id="led4">
+  <input type="checkbox" name="" id="led5">
+  <input type="checkbox" name="" id="led6">
+  <input type="checkbox" name="" id="led7">
+  <input type="checkbox" name="" id="led8">
+</div>
+<div class="cards">
+  <div id="controle">
+      <h3>
+          Controle
+      </h3>
+      <input id= "button-cima" type="button" value="←">
+      <input id= "button-esquerda" type="button" value="↑">
+      <input id= "button-direita" type="button" value="→">
+      <input id= "button-baixo" type="button" value="↓">
+  </div>
+</div>
+<div class = "musica">
+      <h3>Música</h3>
+      <label for="musica">Música: </label>
+      <input type="number" id="musica-input"    min="0" max="5">
+</div>
     <script>
       let theta1 = 0;
       let theta2 = 0;
@@ -70,101 +119,75 @@
         }
       }
 
-      function setup() {
-        createCanvas(400, 400, WEBGL);
-      }
+      let scene, camera, renderer, cube;
 
       
-function draw(){
- 
 
- background(0);
+      function init3D() {
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xffffff);
 
-directionalLight(255,255,255,-1,-1,-1);
-ambientLight(80);
+        camera = new THREE.PerspectiveCamera(
+          75,
+          window.innerWidth / window.innerHeight,
+          0.1,
+          1000
+        );
 
-dtheta1dt=dthetaXdt;
-dtheta2dt=dthetaYdt*sin(thetaX)+dthetaZdt*cos(thetaX);
-dtheta3dt=-dthetaYdt*cos(thetaX)*cos(theta2)
- +dthetaZdt*sin(thetaX)*cos(theta2)
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
 
+        document.getElementById('3Dcube').appendChild(renderer.domElement);
 
-scale(1.5)
+        // Create a geometry
+        const geometry = new THREE.BoxGeometry(5, 1, 4);
 
+        // Materials of each face
+        var cubeMaterials = [
+          new THREE.MeshBasicMaterial({ color: 0x03045e }),
+          new THREE.MeshBasicMaterial({ color: 0x023e8a }),
+          new THREE.MeshBasicMaterial({ color: 0x0077b6 }),
+          new THREE.MeshBasicMaterial({ color: 0x03045e }),
+          new THREE.MeshBasicMaterial({ color: 0x023e8a }),
+          new THREE.MeshBasicMaterial({ color: 0x0077b6 }),
+        ];
 
-stroke(0)
+        const material = new THREE.MeshFaceMaterial(cubeMaterials);
 
+        cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+        camera.position.z = 5;
+        renderer.render(scene, camera);
+      }
 
-let r1=100,r2=80,r3=60;
+      // Resize the 3D object when the browser window changes size
+      function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
 
-noStroke()
-let detailX=48*2;
-let detailY=32;
+      window.addEventListener('resize', onWindowResize, false);
 
-//outer ring
-torus(r1,5,detailX,detailY)
+      // Create the 3D representation
+      init3D();
 
-push()
-translate((r1+r2)/2,0,0)
-rotateZ(PI/2)
-cylinder(5,20)
-pop()
-push()
-translate(-(r1+r2)/2,0,0)
-rotateZ(PI/2)
-cylinder(5,20)
-pop()
+      // Função para atualizar a rotação do cubo com base nos valores do giroscópio
+      function updateCubeRotation() {
+        if (det && dtheta1dt == dtheta1dt) {
+          cube.rotation.x = dthetaXdt;
+          cube.rotation.y = dthetaYdt;
+          cube.rotation.z = dthetaZdt;
+          renderer.render(scene, camera);
+        }
+        requestAnimationFrame(updateCubeRotation);
+      }
 
-//middle ring
-rotateX(theta1)
-rotateX(PI/2)
-torus(80,5,detailX,detailY)
+      updateCubeRotation();
 
-push()
-translate(0,(r2+r3)/2,0)
-rotateY(PI/2)
-cylinder(5,20)
-pop()
-
-push()
-translate(0,-(r2+r3)/2,0)
-rotateY(PI/2)
-cylinder(5,20)
-pop()
-
-
-//inner ring
-rotateY(theta2);
-rotateY(PI/2)
-torus(r3,5,detailX,detailY)
-
-//box
-rotateX(theta3);
-box(50)
-rotateZ(PI/2)
-cylinder(5,2*r3)
-
-if(det && dtheta1dt==dtheta1dt){
- theta1+=dtheta1dt*dt;
- theta2+=dtheta2dt*dt;
- theta3+=dtheta3dt*dt;
- 
- thetaX+=dthetaXdt*dt;
- thetaY+=dthetaYdt*dt;
- thetaZ+=dthetaZdt*dt;
-}
-
-}
+      // Resto do seu código JavaScript
     </script>
-    <style>
-      html, body {
-        margin: 0;
-        padding: 0;
-      }
 
-      canvas {
-        display: block;
-      }
-    </style>
+    <!-- Seu código HTML existente -->
   </body>
 </html>
