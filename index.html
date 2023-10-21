@@ -88,23 +88,24 @@
       let t = 0,
         dt = 1;
 
-      function cb(event) {
-        dthetaXdt = event.rotationRate.alpha * (PI / 180);
-        dthetaYdt = event.rotationRate.beta * (PI / 180);
-        dthetaZdt = event.rotationRate.gamma * (PI / 180);
-
-        let ct = millis() / 1000;
-        dt = ct - t;
-        t = ct;
-
-        // Atualize os valores do giroscópio na tela
-        document.getElementById('gyroX').textContent = dthetaXdt.toFixed(3);
-        document.getElementById('gyroY').textContent = dthetaYdt.toFixed(3);
-        document.getElementById('gyroZ').textContent = dthetaZdt.toFixed(3);
-
-        det = true;
-      }
-
+        function cb(event) {
+  if (event.rotationRate) {
+    dthetaXdt = event.rotationRate.alpha * (Math.PI / 180);
+    dthetaYdt = event.rotationRate.beta * (Math.PI / 180);
+    dthetaZdt = event.rotationRate.gamma * (Math.PI / 180);
+  
+    let ct = millis() / 1000;
+    dt = ct - t;
+    t = ct;
+  
+    // Atualize os valores do giroscópio na tela
+    document.getElementById('gyroX').textContent = dthetaXdt.toFixed(3);
+    document.getElementById('gyroY').textContent = dthetaYdt.toFixed(3);
+    document.getElementById('gyroZ').textContent = dthetaZdt.toFixed(3);
+  
+    det = true;
+  }
+}
       function onClick() {
         if (typeof DeviceMotionEvent.requestPermission === 'function') {
           DeviceMotionEvent.requestPermission()
